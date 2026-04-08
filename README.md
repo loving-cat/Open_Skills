@@ -124,10 +124,6 @@ cp expert-team-mode.md ~/.claude/skills/Think/SKILL.md
 
 MIT License
 
----
-
-**GitHub 项目描述 (350字符内)：**
-
 ```
 🤝 专家团协作模式 - 通过"规划→任务分解→专家执行→疑难调度"流程解决复杂开发问题。架构师统筹规划，前端/后端/数据库/DevOps专家分工执行，疑难问题自动调度额外专家介入。支持命令 /Think 快速启用。
 ```
