@@ -1,0 +1,142 @@
+# 专家角色配置
+# 此文件定义所有可调度的专家角色
+
+experts:
+  # ==================== 核心团队 ====================
+  frontend:
+    name: 前端专家
+    count: 3  # 可调度人数
+    skills:
+      - React/Vue/Angular 开发
+      - TypeScript 类型系统
+      - CSS/样式工程化
+      - 响应式设计
+      - 性能优化
+    triggers:
+      - UI组件开发
+      - 页面开发
+      - 样式实现
+      - 前端逻辑
+    template: templates/frontend.md
+
+  backend:
+    name: 后端专家
+    count: 3
+    skills:
+      - API 设计与实现
+      - 业务逻辑开发
+      - 认证授权
+      - 微服务架构
+      - 性能调优
+    triggers:
+      - API开发
+      - 业务逻辑
+      - 服务实现
+      - 接口设计
+    template: templates/backend.md
+
+  database:
+    name: 数据库专家
+    count: 2
+    skills:
+      - 数据模型设计
+      - SQL/NoSQL 查询优化
+      - 迁移脚本
+      - 索引优化
+      - 数据一致性
+    triggers:
+      - 数据模型
+      - 迁移脚本
+      - 查询优化
+      - 表结构设计
+    template: templates/database.md
+
+  devops:
+    name: DevOps专家
+    count: 2
+    skills:
+      - Docker 容器化
+      - CI/CD 流水线
+      - 部署脚本
+      - 基础设施配置
+      - 监控告警
+    triggers:
+      - Docker配置
+      - CI/CD
+      - 部署脚本
+      - 环境配置
+    template: templates/devops.md
+
+  # ==================== 专项专家 ====================
+  security:
+    name: 安全专家
+    count: 1
+    skills:
+      - 安全审计
+      - 漏洞扫描
+      - 安全加固
+      - 渗透测试
+      - 合规检查
+    triggers:
+      - 安全问题
+      - 漏洞修复
+      - 权限控制
+    escalation: true  # 可作为增援专家
+    template: templates/security.md
+
+  test:
+    name: 测试专家
+    count: 1
+    skills:
+      - 功能测试
+      - 测试用例设计
+      - 自动化测试
+      - 性能测试
+      - 测试报告
+    triggers:
+      - 测试验证
+      - 质量检查
+    escalation: true
+    template: templates/test.md
+
+  code-reviewer:
+    name: 代码审查专家
+    count: 1
+    skills:
+      - 代码风格检查
+      - 代码质量评估
+      - 最佳实践建议
+      - 重构建议
+    triggers:
+      - 代码审查
+      - 质量检查
+    escalation: true
+    template: templates/common.md
+
+# ==================== 增援规则 ====================
+escalation_rules:
+  # 同领域增援
+  same_domain:
+    trigger: 执行受阻或多次尝试失败
+    action: 调度同领域其他专家
+    example:
+      - 后端专家A受阻 → 后端专家B+C 协助
+      - 前端专家A受阻 → 前端专家B+C 协助
+
+  # 跨领域增援
+  cross_domain:
+    security:
+      trigger: 任何专家遇到安全问题
+      action: 调度安全专家介入
+    performance:
+      trigger: 任何专家遇到性能问题
+      action: 调度性能专家介入
+    testing:
+      trigger: 任何专家遇到测试问题
+      action: 调度测试专家介入
+
+# ==================== 专家调用配置 ====================
+agent_config:
+  subagent_type: general-purpose  # 必须使用此类型确保写入权限
+  parallel: true  # 支持并行调用
+  max_concurrent: 5  # 最大并发数

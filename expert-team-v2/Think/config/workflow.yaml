@@ -1,0 +1,133 @@
+# 协作流程配置
+# 定义专家团的协作流程和调度规则
+
+workflow:
+  # ==================== 流程阶段 ====================
+  phases:
+    - id: plan
+      name: 规划
+      role: 架构师
+      description: 需求分析、技术选型、架构设计、任务分解
+      outputs:
+        - 技术方案
+        - 任务分解表
+        - 依赖关系图
+
+    - id: assign
+      name: 任务分配
+      role: 主协调器
+      description: 根据任务类型分配专家
+      rules:
+        - 前端任务 → 前端专家
+        - 后端任务 → 后端专家
+        - 数据库任务 → 数据库专家
+        - DevOps任务 → DevOps专家
+
+    - id: execute
+      name: 专家执行
+      role: 领域专家
+      description: 按波次调度执行任务
+      parallel_rule: 无依赖任务同时启动 Agent
+
+    - id: escalate
+      name: 疑难调度
+      role: 增援专家
+      description: 遇到困难时自动增派专家
+      triggers:
+        - 执行受阻
+        - 多次尝试失败
+        - 报告困难关键词
+
+    - id: verify
+      name: 验收
+      role: 测试专家
+      description: 功能验证、质量检查
+      outputs:
+        - 测试报告
+        - 问题清单
+
+  # ==================== 并行调度规则 ====================
+  parallel_rules:
+    wave_execution:
+      description: 波次执行机制
+      algorithm: |
+        1. 扫描所有任务，找出无依赖的任务组
+        2. 同一波次任务 → 同时调用 Agent 工具
+        3. 等待波次所有任务完成
+        4. 进入下一波次
+
+    max_concurrent: 5
+    subagent_type: general-purpose  # 关键：确保写入权限
+
+  # ==================== 依赖管理 ====================
+  dependency_rules:
+    - 无依赖任务可并行
+    - 有依赖任务必须串行
+    - 循环依赖报错
+
+  # ==================== 执行协议 ====================
+  execution_protocol:
+    phase_1_plan:
+      steps:
+        - 深入分析用户需求
+        - 输出详细架构Plan
+        - 任务分解（Task1, Task2, Task3...）
+        - 标注依赖关系和执行顺序
+
+    phase_2_3_execute:
+      rules:
+        - 识别可并行组
+        - 波次内任务同时调用 Agent
+        - 必须使用 subagent_type: "general-purpose"
+        - 等待波次完成后进入下一波次
+        - 每个 Agent 完成后立即验证
+        - 验证失败标记疑难，调度增援
+
+    phase_4_escalate:
+      triggers:
+        - 执行超过预期时间
+        - 多次尝试仍失败
+        - 报告"复杂"、"困难"、"需要协助"等关键词
+        - 验证失败且难以修复
+
+      actions:
+        same_domain:
+          description: 同领域增援
+          example: 后端专家A受阻 → 后端专家B+C 协助
+        cross_domain:
+          security: 调度安全专家
+          performance: 调度性能专家
+          testing: 调度测试专家
+
+    phase_5_verify:
+      steps:
+        - 调用测试专家验证
+        - 输出测试报告
+        - 汇总问题清单
+
+# ==================== 执行纪律 ====================
+discipline:
+  - 先规划后执行 - 禁止跳过规划直接写代码
+  - 真并行 - 无依赖任务同时调用 Agent 工具
+  - 子代理类型 - 必须使用 general-purpose 确保写入权限
+  - 依赖管理 - 有依赖任务串行，无依赖并行
+  - 疑难调度 - 执行困难时主动调度增援专家
+  - 即时验证 - 每个 Agent 完成后立即验证
+  - 资源节约 - 只调度必要的专家
+
+# ==================== 红线规则 ====================
+red_lines:
+  parallel_execution:
+    wrong: |
+      伪并行：在一个回复里按顺序描述多个任务
+      "先让前端专家做A，然后后端专家做B..."
+    correct: |
+      真并行：同时调用多个 Agent 工具
+      Agent({ subagent_type: "general-purpose", ... })  # 专家A
+      Agent({ subagent_type: "general-purpose", ... })  # 专家B（同时运行）
+
+  code_quality:
+    - 所有代码修改必须可回滚
+    - 严禁生产环境敏感信息硬编码
+    - 引入新依赖必须说明理由
+    - 删除代码前先确认无引用
